@@ -1,6 +1,5 @@
 import React, { useState, useCallback } from 'react';
 import { Upload, File, X, CheckCircle, AlertCircle } from 'lucide-react';
-import { uploadAPI } from '../services/api';
 import { UploadedFile } from '../types';
 
 interface FileUploadProps {
