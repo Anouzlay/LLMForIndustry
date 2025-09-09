@@ -13,7 +13,6 @@ interface ChatMessageProps {
 
 // Reusable typed props for markdown override components
 type WithClassName = PropsWithChildren<{ className?: string }>;
-type WithChildren = PropsWithChildren<{}>;
 
 const H1 = ({ children, className }: WithClassName) => (
   <h1 className={`text-lg font-bold text-gray-900 mb-2 ${className ?? ""}`}>{children}</h1>

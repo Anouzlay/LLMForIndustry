@@ -79,20 +79,11 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUploadComplete, onUploadError
 
     setIsUploading(true);
     try {
-      // Create File objects from the file list
-      const fileInput = document.createElement('input');
-      fileInput.type = 'file';
-      fileInput.multiple = true;
-      fileInput.accept = allowedTypes.join(',');
-      
-      // For demo purposes, we'll simulate file upload
-      // In a real app, you'd need to store the actual File objects
-      const response = await uploadAPI.uploadFiles([]);
-      
-      // Update file statuses
+      // In this UI we do not persist the raw File instances after validation.
+      // Adjust to your real flow: collect actual File objects and pass each to uploadAPI.
+      // Here we will just mark as success without uploading actual data.
       setFiles(prev => prev.map(file => ({ ...file, status: 'success' })));
-      
-      onUploadComplete?.(response);
+      onUploadComplete?.({ success: true });
     } catch (error: any) {
       console.error('Upload error:', error);
       setFiles(prev => prev.map(file => ({ ...file, status: 'error' })));

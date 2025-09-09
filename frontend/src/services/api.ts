@@ -1,6 +1,6 @@
 import axios from "axios";
 import {
-  ChatMessage, ChatMessageResponse, ThreadResponse, UserRegister, UserLogin, AuthResponse, UserResponse,
+  ChatMessageResponse, ThreadResponse, UserRegister, UserLogin, AuthResponse, UserResponse,
   ChatCreate, ChatResponse, ChatListResponse, ChatMessageWithId
 } from "../types";
 

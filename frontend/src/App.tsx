@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MessageCircle, FileText, LogOut, User } from 'lucide-react';
+import { FileText, LogOut, User } from 'lucide-react';
 import ChatInterface from './components/ChatInterface';
 import ChatSidebar from './components/ChatSidebar';
 import LoginForm from './components/LoginForm';
@@ -32,7 +32,8 @@ const AppContent: React.FC = () => {
   };
 
   const handleAuthSuccess = (userData: UserResponse, token: string) => {
-    // This will be handled by the AuthContext
+    void userData;
+    void token;
     setShowRegister(false);
   };
 

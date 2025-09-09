@@ -68,3 +68,11 @@ export interface ChatMessageWithId {
   chat_id: string;
   thread_id?: string;
 }
+
+// File upload UI type
+export interface UploadedFile {
+  name: string;
+  size: number;
+  type: string;
+  status: 'uploading' | 'success' | 'error';
+}

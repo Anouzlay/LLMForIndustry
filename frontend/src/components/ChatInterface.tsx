@@ -34,16 +34,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ chatId, threadId, onThrea
     setError(null); // Clear any previous errors
   }, [chatId, threadId]);
 
-  const createThread = async () => {
-    try {
-      const response = await chatAPI.createThread();
-      setCurrentThreadId(response.thread_id);
-      onThreadCreated?.(response.thread_id);
-    } catch (error: any) {
-      setError('Failed to create chat thread');
-      console.error('Error creating thread:', error);
-    }
-  };
+  // Thread can be created implicitly by backend when sending first message; no explicit creation here
 
   const sendMessage = async (content: string) => {
     if (!chatId) {
