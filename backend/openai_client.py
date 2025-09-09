@@ -1,4 +1,5 @@
 import os
+import time
 from openai import OpenAI
 from config import settings
 import logging
@@ -118,20 +119,40 @@ class OpenAIClient:
                 logger.error(f"Run failed with status: {run.status}")
                 return "Sorry, I encountered an error processing your request."
 
-            # Get the latest assistant message
-            messages = self.client.beta.threads.messages.list(thread_id=thread_id)
-            assistant_messages = [m for m in messages.data if m.role == "assistant"]
-            
+            # Get the latest assistant message with a short retry to avoid race conditions
+            assistant_messages = []
+            for attempt in range(12):
+                messages = self.client.beta.threads.messages.list(thread_id=thread_id)
+                # ensure we pick the newest assistant message
+                assistant_messages = [m for m in messages.data if m.role == "assistant"]
+                assistant_messages.sort(key=lambda m: getattr(m, "created_at", 0), reverse=True)
+                if assistant_messages:
+                    break
+                time.sleep(0.25)
             if not assistant_messages:
-                return "Out of context. Please ask based on the uploaded documents."
+                logger.warning("No assistant message found after polling; returning fallback text")
+                return "Sorry, I couldn't generate a response. Please try again."
 
             latest_message = assistant_messages[0]
-            reply = ""
-            
-            # Extract text content from the message
+            reply_parts = []
+
+            # Extract text and include any inline annotations/citations in a readable way
             for content in latest_message.content:
                 if content.type == "text":
-                    reply += content.text.value
+                    text_value = content.text.value or ""
+                    # Append citations if present
+                    annotations = getattr(content.text, "annotations", []) or []
+                    citations = []
+                    for ann in annotations:
+                        # best-effort readable citation output
+                        file_citation = getattr(ann, "file_citation", None)
+                        if file_citation and getattr(file_citation, "file_id", None):
+                            citations.append(f"[{getattr(file_citation, 'file_id', '')}]")
+                    if citations:
+                        text_value += "\n\nReferences: " + " ".join(citations)
+                    reply_parts.append(text_value)
+
+            reply = "\n\n".join([part.strip() for part in reply_parts if str(part).strip()])
 
             # Check if the response indicates no relevant information was found
             if not reply.strip() or "out of context" in reply.lower():

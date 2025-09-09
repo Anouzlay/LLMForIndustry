@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Depends, Header
+from fastapi import FastAPI, HTTPException, Depends, Header, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import os
@@ -25,13 +25,27 @@ app = FastAPI(
 )
 
 # CORS middleware
+# Configure CORS with optional wildcard support
+_cors_origins = settings.CORS_ORIGINS
+_allow_credentials = True
+
+# If CORS_ORIGINS is set to "*", allow all origins but disable credentials per CORS spec
+if len(_cors_origins) == 1 and _cors_origins[0].strip().strip('"\'') == "*":
+    _cors_origins = ["*"]
+    _allow_credentials = False
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
-    allow_credentials=True,
+    allow_origins=_cors_origins,
+    allow_credentials=_allow_credentials,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Ensure preflight OPTIONS never 400s (CORS middleware will attach headers)
+@app.options("/{rest_of_path:path}")
+async def cors_preflight(rest_of_path: str, request: Request):
+    return Response(status_code=204)
 
 # Authentication setup
 security = HTTPBearer(auto_error=False)

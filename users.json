@@ -1,0 +1,31 @@
+{
+  "admin": {
+    "user_id": "BbwgC5Fx1ySrWfmLW7IHaA",
+    "username": "admin",
+    "email": "anouzlay@gmail.com",
+    "password_hash": "ad2e558a2caadf095119aec42d28a2c2:ac5ae0374367c51158f24a7b2f20490df4325a6d35d037abe320fa4f2221eb1f",
+    "created_at": "2025-09-09T13:49:24.999187",
+    "last_login": "2025-09-09T14:30:57.215242",
+    "chats": {
+      "udQyv74ZWZ9903McwSBiWQ": {
+        "chat_id": "udQyv74ZWZ9903McwSBiWQ",
+        "title": "New Chat",
+        "thread_id": null,
+        "created_at": "2025-09-09T13:57:11.871301",
+        "last_message_at": null,
+        "message_count": 0
+      },
+      "THbBvy9UkSt7mArTCcM2kQ": {
+        "chat_id": "THbBvy9UkSt7mArTCcM2kQ",
+        "title": "New Chat",
+        "thread_id": "thread_k9LUQv5wwPEo2SB0fqTEeygX",
+        "created_at": "2025-09-09T13:57:15.503669",
+        "last_message_at": "2025-09-09T14:41:00.876962",
+        "message_count": 6
+      }
+    },
+    "is_active": true,
+    "session_token": "ABKFqVHfNo4Mpogk1XmnJhcY8Ip_h3RRBB1-ziRh-Rk",
+    "session_expires": "2025-09-10T14:30:57.217206"
+  }
+}

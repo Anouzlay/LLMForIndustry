@@ -27,14 +27,52 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ chatId, threadId, onThrea
     scrollToBottom();
   }, [messages]);
 
-  // Clear messages when chat changes
+  // Load persisted chat when chat changes
   useEffect(() => {
-    setMessages([]);
-    setCurrentThreadId(threadId);
-    setError(null); // Clear any previous errors
+    setError(null);
+    if (!chatId) {
+      setMessages([]);
+      setCurrentThreadId(threadId);
+      return;
+    }
+    try {
+      const raw = localStorage.getItem(`chat_state_${chatId}`);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        setMessages(
+          Array.isArray(parsed.messages)
+            ? parsed.messages.map((m: any) => ({
+                ...m,
+                timestamp: typeof m.timestamp === 'string' ? new Date(m.timestamp) : m.timestamp,
+              }))
+            : []
+        );
+        setCurrentThreadId(parsed.threadId || threadId);
+      } else {
+        setMessages([]);
+        setCurrentThreadId(threadId);
+      }
+    } catch {
+      setMessages([]);
+      setCurrentThreadId(threadId);
+    }
   }, [chatId, threadId]);
 
-  // Thread can be created implicitly by backend when sending first message; no explicit creation here
+  // Persist chat state
+  useEffect(() => {
+    if (!chatId) return;
+    try {
+      localStorage.setItem(
+        `chat_state_${chatId}`,
+        JSON.stringify({
+          messages,
+          threadId: currentThreadId,
+        })
+      );
+    } catch {}
+  }, [chatId, messages, currentThreadId]);
+
+  // No explicit createThread; backend creates it on first message
 
   const sendMessage = async (content: string) => {
     if (!chatId) {
@@ -94,21 +132,21 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ chatId, threadId, onThrea
 
   const clearChat = () => {
     setMessages([]);
+    if (chatId) {
+      try {
+        localStorage.removeItem(`chat_state_${chatId}`);
+      } catch {}
+    }
   };
 
   return (
-    <div className="flex flex-col h-full bg-gray-50">
+    <div className="flex flex-col h-full bg-gradient-to-b from-gray-50 to-white">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
+      <div className="bg-white/90 backdrop-blur border-b border-gray-200 px-6 py-4 sticky top-0 z-10">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <MessageCircle className="w-6 h-6 text-primary-600" />
-            <h1 className="text-xl font-semibold text-gray-900">Document Chat</h1>
-            {currentThreadId && (
-              <span className="text-sm text-gray-500">
-                Thread: {currentThreadId.slice(0, 8)}...
-              </span>
-            )}
+            <h1 className="text-xl font-semibold text-gray-900">Document Chat Agent</h1>
           </div>
           <button
             onClick={clearChat}
@@ -136,10 +174,12 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ chatId, threadId, onThrea
       )}
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-6 py-4">
+      <div className="flex-1 overflow-y-auto px-4 md:px-6 py-6">
         {!chatId ? (
           <div className="flex flex-col items-center justify-center h-full text-center">
-            <MessageCircle className="w-16 h-16 text-gray-300 mb-4" />
+            <div className="w-16 h-16 rounded-full bg-white shadow flex items-center justify-center mb-4">
+              <MessageCircle className="w-8 h-8 text-primary-600" />
+            </div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">
               Select a chat to start
             </h3>
@@ -149,7 +189,9 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ chatId, threadId, onThrea
           </div>
         ) : messages.length === 0 && !isLoading ? (
           <div className="flex flex-col items-center justify-center h-full text-center">
-            <MessageCircle className="w-16 h-16 text-gray-300 mb-4" />
+            <div className="w-16 h-16 rounded-full bg-white shadow flex items-center justify-center mb-4">
+              <MessageCircle className="w-8 h-8 text-primary-600" />
+            </div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">
               Start a conversation
             </h3>
@@ -168,7 +210,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ chatId, threadId, onThrea
                   <div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center">
                     <MessageCircle className="w-4 h-4 text-white" />
                   </div>
-                  <div className="bg-gray-100 px-4 py-2 rounded-lg">
+                  <div className="bg-white shadow px-4 py-2 rounded-lg">
                     <div className="flex space-x-1">
                       <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
                       <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>

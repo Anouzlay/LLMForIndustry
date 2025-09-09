@@ -39,7 +39,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
   }, [message]);
 
   return (
-    <form onSubmit={handleSubmit} className="flex items-end space-x-3 p-4 bg-white border-t">
+    <form onSubmit={handleSubmit} className="flex items-end space-x-3 p-4 bg-white/90 backdrop-blur border-t">
       <div className="flex-1">
         <textarea
           ref={textareaRef}
