@@ -1,95 +1,98 @@
-import axios from 'axios';
-import { 
+import axios from "axios";
+import {
   ChatMessage, ChatMessageResponse, ThreadResponse, UserRegister, UserLogin, AuthResponse, UserResponse,
   ChatCreate, ChatResponse, ChatListResponse, ChatMessageWithId
-} from '../types';
+} from "../types";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001';
+// Vite env (typed via vite-env.d.ts)
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8001";
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  headers: { "Content-Type": "application/json" },
 });
 
-// Add auth token to requests
+// attach auth header if present
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('session_token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
+  const token = localStorage.getItem("session_token");
+  if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
 
-// Handle auth errors
+// 401 handler
 api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('session_token');
-      localStorage.removeItem('user_data');
-      // Don't redirect, let the AuthContext handle the state
+  (res) => res,
+  (err) => {
+    if (err.response?.status === 401) {
+      localStorage.removeItem("session_token");
+      localStorage.removeItem("user_data");
     }
-    return Promise.reject(error);
+    return Promise.reject(err);
   }
 );
 
+// 👇 Add this named export to satisfy FileUpload.tsx
+export async function uploadAPI(file: File) {
+  const form = new FormData();
+  form.append("file", file);
+
+  // adjust the endpoint if your backend differs (e.g. "/api/files")
+  const res = await fetch(`${API_BASE_URL}/api/upload`, {
+    method: "POST",
+    body: form,
+  });
+  if (!res.ok) throw new Error(`Upload failed: ${res.status} ${res.statusText}`);
+  return res.json();
+}
+
 export const authAPI = {
   async register(userData: UserRegister): Promise<AuthResponse> {
-    const response = await api.post<AuthResponse>('/api/auth/register', userData);
-    return response.data;
+    const { data } = await api.post<AuthResponse>("/api/auth/register", userData);
+    return data;
   },
-
   async login(loginData: UserLogin): Promise<AuthResponse> {
-    const response = await api.post<AuthResponse>('/api/auth/login', loginData);
-    return response.data;
+    const { data } = await api.post<AuthResponse>("/api/auth/login", loginData);
+    return data;
   },
-
   async getCurrentUser(): Promise<UserResponse> {
-    const response = await api.get<UserResponse>('/api/auth/me');
-    return response.data;
+    const { data } = await api.get<UserResponse>("/api/auth/me");
+    return data;
   },
-
   async logout(): Promise<{ success: boolean; message: string }> {
-    const response = await api.post('/api/auth/logout');
-    return response.data;
+    const { data } = await api.post("/api/auth/logout");
+    return data;
   },
 };
 
 export const chatAPI = {
   async sendMessage(message: string, chatId: string, threadId?: string): Promise<ChatMessageResponse> {
     const payload: ChatMessageWithId = { message, chat_id: chatId, thread_id: threadId };
-    const response = await api.post<ChatMessageResponse>('/api/chat', payload);
-    return response.data;
+    const { data } = await api.post<ChatMessageResponse>("/api/chat", payload);
+    return data;
   },
-
   async createThread(): Promise<ThreadResponse> {
-    const response = await api.post<ThreadResponse>('/api/thread');
-    return response.data;
+    const { data } = await api.post<ThreadResponse>("/api/thread");
+    return data;
   },
 };
 
 export const chatManagementAPI = {
   async createChat(title: string = "New Chat"): Promise<ChatResponse> {
     const payload: ChatCreate = { title };
-    const response = await api.post<ChatResponse>('/api/chats', payload);
-    return response.data;
+    const { data } = await api.post<ChatResponse>("/api/chats", payload);
+    return data;
   },
-
   async getUserChats(): Promise<ChatListResponse> {
-    const response = await api.get<ChatListResponse>('/api/chats');
-    return response.data;
+    const { data } = await api.get<ChatListResponse>("/api/chats");
+    return data;
   },
-
   async deleteChat(chatId: string): Promise<{ success: boolean; message: string }> {
-    const response = await api.delete(`/api/chats/${chatId}`);
-    return response.data;
+    const { data } = await api.delete(`/api/chats/${chatId}`);
+    return data;
   },
-
   async updateChatTitle(chatId: string, title: string): Promise<{ success: boolean; message: string }> {
-    const response = await api.put(`/api/chats/${chatId}/title`, { title });
-    return response.data;
+    const { data } = await api.put(`/api/chats/${chatId}/title`, { title });
+    return data;
   },
 };
 
