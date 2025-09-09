@@ -1,0 +1,23 @@
+{
+  "admin": {
+    "user_id": "rpW_3LNXfdlVaePIbfpqpg",
+    "username": "admin",
+    "email": "anouzlay@gmail.com",
+    "password_hash": "36d7f0de4736cd88621b732cfdda0039:14ae6c45fe61d2deed84cdd5d1d198dd7e64dcdfda21d7f4a1f09b54e306b2bc",
+    "created_at": "2025-09-07T23:04:22.734913",
+    "last_login": "2025-09-07T23:05:57.101711",
+    "chats": {
+      "JrSHgEQmOWZ08lURdlSRQA": {
+        "chat_id": "JrSHgEQmOWZ08lURdlSRQA",
+        "title": "New Chat",
+        "thread_id": "thread_9rAqRAUyr9W8VpnoNpiIlKaa",
+        "created_at": "2025-09-07T23:56:06.061657",
+        "last_message_at": "2025-09-08T00:44:57.646470",
+        "message_count": 13
+      }
+    },
+    "is_active": true,
+    "session_token": "MY9k1WlYXyXijOz9afqDW2bXT-LgehWgDQr4Sra6g9Q",
+    "session_expires": "2025-09-08T23:05:57.104238"
+  }
+}
